@@ -53,7 +53,15 @@ public class ItemDto {
     /**
      * Методы для проверки заполненности полей, т.к. при обновлении данных поля могут приходить незаполненными.
      */
-    public boolean hasName() {return !(name == null || name.isBlank());}
-    public boolean hasDescription() {return !(description == null || description.isBlank());}
-    public boolean hasAvailable() {return !(available == null);}
+    public boolean hasName() {
+        return !(name == null || name.isBlank());
+    }
+
+    public boolean hasDescription() {
+        return !(description == null || description.isBlank());
+    }
+
+    public boolean hasAvailable() {
+        return !(available == null);
+    }
 }

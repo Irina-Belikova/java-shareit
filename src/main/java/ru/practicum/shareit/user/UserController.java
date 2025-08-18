@@ -17,6 +17,7 @@ import ru.practicum.shareit.validation.ValidationUtils;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class UserController {
     private final UserService userService;

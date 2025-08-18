@@ -23,10 +23,11 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final ValidationUtils validation;
+    private static final String USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto addItem(
-            @RequestHeader("X-Sharer-User-Id")
+            @RequestHeader(USER_ID)
             @Positive(message = "Id пользователя должно быть положительным") long userId,
             @Validated(OnCreate.class) @RequestBody ItemDto itemDto) {
         log.info("Поступил запрос от пользователя с id - {} на сохранение новой вещи {}", userId, itemDto);
@@ -36,7 +37,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(
-            @RequestHeader("X-Sharer-User-Id")
+            @RequestHeader(USER_ID)
             @Positive(message = "Id пользователя должно быть положительным.") long userId,
             @PathVariable @Positive(message = "Id вещи должно быть положительным.") long itemId,
             @Valid @RequestBody ItemDto itemDto) {
@@ -47,7 +48,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItemById(
-            @RequestHeader("X-Sharer-User-Id")
+            @RequestHeader(USER_ID)
             @Positive(message = "Id пользователя должно быть положительным.") long userId,
             @PathVariable @Positive(message = "Id вещи должно быть положительным.") long itemId) {
         log.info("Поступил запрос на вывод информации о вещи.");
@@ -58,7 +59,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getItemsByUserId(
-            @RequestHeader("X-Sharer-User-Id")
+            @RequestHeader(USER_ID)
             @Positive(message = "Id пользователя должно быть положительным.") long userId) {
         log.info("Поступил запрос на получение списка вещей пользователя с id - {}", userId);
         validation.checkUserId(userId);

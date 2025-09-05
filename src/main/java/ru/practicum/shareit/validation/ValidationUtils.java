@@ -134,7 +134,7 @@ public class ValidationUtils {
         }
 
         LocalDateTime time = LocalDateTime.now();
-        if (time.isAfter(booking.getStart()) && time.isBefore(booking.getEnd())) {
+        if (time.isAfter(booking.getStart()) && time.isBefore(booking.getEnd())  ) {
             throw new ValidationException("Комментарии можно оставлять только за прошедшие бронирования.");
         }
     }

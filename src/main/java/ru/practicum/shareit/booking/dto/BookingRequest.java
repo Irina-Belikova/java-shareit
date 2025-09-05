@@ -1,9 +1,12 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
 import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.validation.OnCreate;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +14,9 @@ import java.time.LocalDateTime;
  * TODO Sprint add-bookings.
  * DTO для взаимодействия с контроллером
  */
-public class BookingDto {
+@Data
+@Builder
+public class BookingRequest {
     /**
      * Уникальный идентификатор бронирования.
      * Генерируется программой.
@@ -23,26 +28,35 @@ public class BookingDto {
     /**
      * Дата и время начала бронирования.
      */
+    @NotNull(groups = OnCreate.class)
+    @FutureOrPresent(message = "Дата начала бронирования не может быть в прошлом.")
     private LocalDateTime start;
 
     /**
      * Дата и время окончания бронирования.
      */
+    @NotNull(groups = OnCreate.class)
+    @FutureOrPresent(message = "Дата окончания бронирования не может быть в прошлом.")
     private LocalDateTime end;
 
     /**
-     * Вещь, которую пользователь бронирует.
+     * id вещи, которую пользователь бронирует.
      */
-    private Item item;
+    @NotNull(message = "id о вещи должен быть указан.")
+    private Long itemId;
 
     /**
      * Id пользователя (зарегистрированный), который осуществляет бронирование.
      */
-    @NotNull(message = "Данные о бронирующем должны быть указаны.")
+    @NotNull(message = "id бронирующего должен быть указан.")
     private Long bookerId;
 
     /**
      * Статус бронирования.
      */
     private BookingStatus status;
+
+    public boolean validEndTime() {
+        return end.isAfter(start);
+    }
 }

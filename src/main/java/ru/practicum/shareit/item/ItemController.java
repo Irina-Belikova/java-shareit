@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentResponse;
+import ru.practicum.shareit.item.dto.CommentRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.validation.OnCreate;
 import ru.practicum.shareit.validation.ValidationUtils;
@@ -74,4 +76,16 @@ public class ItemController {
         }
         return itemService.getItemsByText(text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponse addComment(
+            @RequestHeader(USER_ID)
+            @Positive(message = "Id пользователя должно быть положительным.") long authorId,
+            @PathVariable @Positive(message = "Id вещи должно быть положительным.") long itemId,
+            @Valid @RequestBody CommentRequest comment) {
+        log.info("Поступил запрос от пользователя {} на добавление комментария к вещи {}.", authorId, itemId);
+        validation.validationForCreateComment(authorId, itemId);
+        return itemService.addComment(authorId, itemId, comment);
+    }
+
 }

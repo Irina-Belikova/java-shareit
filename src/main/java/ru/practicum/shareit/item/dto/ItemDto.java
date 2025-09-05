@@ -8,6 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.validation.OnCreate;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TODO Sprint add-controllers.
  * DTO для взаимодействия с контроллером.
@@ -46,9 +50,13 @@ public class ItemDto {
     private Boolean available;
 
     /**
-     * Запрос другого пользователя, если по нему была создана вещь.
+     * id запроса другого пользователя, если по нему была создана вещь.
      */
     private Long requestId;
+
+    private LocalDateTime lastBooking;
+    private LocalDateTime nextBooking;
+    private List<CommentResponse> comments = new ArrayList<>();
 
     /**
      * Методы для проверки заполненности полей, т.к. при обновлении данных поля могут приходить незаполненными.

@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.item.dto.CommentResponse;
+import ru.practicum.shareit.item.dto.CommentRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -41,4 +43,6 @@ public interface ItemService {
      * @return список dto-вещей
      */
     List<ItemDto> getItemsByText(String text);
+
+    CommentResponse addComment(long authorId, long itemId, CommentRequest comment);
 }

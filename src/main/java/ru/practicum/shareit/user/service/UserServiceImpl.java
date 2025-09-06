@@ -1,10 +1,13 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +37,6 @@ public class UserServiceImpl implements UserService {
         if (userDto.hasEmail()) {
             updateUser.setEmail(userDto.getEmail());
         }
-
-        updateUser = userRepository.save(updateUser);
         return UserMapper.mapToUserDto(updateUser);
     }
 

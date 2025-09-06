@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +7,8 @@ import lombok.*;
  * TODO Sprint add-controllers.
  * Класс для хранения информации о зарегистрированных пользователях.
  */
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

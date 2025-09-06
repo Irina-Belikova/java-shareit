@@ -3,7 +3,7 @@ package ru.practicum.shareit.review;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 /**
  * Класс для написания отзывов о вещах пользователями.

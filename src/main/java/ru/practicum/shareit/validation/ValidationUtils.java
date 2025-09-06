@@ -2,17 +2,16 @@ package ru.practicum.shareit.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingRequest;
 import ru.practicum.shareit.exception.DuplicateDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -35,8 +34,7 @@ public class ValidationUtils {
     }
 
     public void validationForUpdateUser(long id, UserDto userDto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователя с таким id - %s не существует.", id)));
+        checkUserId(id);
         if (userDto.hasEmail()) {
             if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
                 throw new DuplicateDataException(String.format("Такой email - %s уже существует.", userDto.getEmail()));
@@ -45,13 +43,15 @@ public class ValidationUtils {
     }
 
     public void checkUserId(long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователя с таким id - %s не существует.", id)));
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException(String.format("Пользователя с таким id - %s не существует.", id));
+        }
     }
 
     public void checkItemId(long id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Вещи с таким id -%s не существует.", id)));
+        if (!itemRepository.existsById(id)) {
+            throw new NotFoundException(String.format("Вещи с таким id -%s не существует.", id));
+        }
     }
 
     public void validationForUpdateItem(long userId, long itemId) {
@@ -86,8 +86,9 @@ public class ValidationUtils {
     }
 
     public void validationForUpdateBookingStatus(long bookingId, long ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new ValidationException(String.format("Пользователя с таким id - %s не существует.", ownerId)));
+        if (!userRepository.existsById(ownerId)) {
+            throw new ValidationException(String.format("Пользователя с таким id - %s не существует.", ownerId));
+        }
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format("Бронирование с таким id - %s не найдено.", bookingId)));
         Item item = booking.getItem();
@@ -112,8 +113,9 @@ public class ValidationUtils {
 
     public void validationOwnerHasItems(long ownerId) {
         checkUserId(ownerId);
-        Item item = itemRepository.findFirstByOwnerId(ownerId)
-                .orElseThrow(() -> new NotFoundException(String.format("У пользователя %s нет ни одной вещи.", ownerId)));
+        if (!itemRepository.existsByOwnerId(ownerId)) {
+            throw new NotFoundException(String.format("У пользователя %s нет ни одной вещи.", ownerId));
+        }
     }
 
     public void validationForCreateComment(long authorId, long itemId) {

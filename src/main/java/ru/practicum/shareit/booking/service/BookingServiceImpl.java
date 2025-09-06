@@ -42,11 +42,6 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с таким id - %s не найдена.", bookingRequest.getItemId())));
         Booking booking = BookingMapper.mapToBooking(bookingRequest, item, booker);
         booking.setStatus(BookingStatus.WAITING);
-
-//дополнительно добавила время на конец бронирования, т.к. тесты постмана и на гитхабе не всегда срабатывают из-за
-//короткой задержки внутри теста
-        booking.setEnd(booking.getEnd().plusSeconds(2));
-
         booking = bookingRepository.save(booking);
         return BookingMapper.mapToBookingResponse(booking);
     }

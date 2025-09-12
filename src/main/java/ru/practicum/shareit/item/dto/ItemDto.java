@@ -9,7 +9,6 @@ import lombok.Data;
 import ru.practicum.shareit.validation.OnCreate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,20 +55,5 @@ public class ItemDto {
 
     private LocalDateTime lastBooking;
     private LocalDateTime nextBooking;
-    private List<CommentResponse> comments = new ArrayList<>();
-
-    /**
-     * Методы для проверки заполненности полей, т.к. при обновлении данных поля могут приходить незаполненными.
-     */
-    public boolean hasName() {
-        return !(name == null || name.isBlank());
-    }
-
-    public boolean hasDescription() {
-        return !(description == null || description.isBlank());
-    }
-
-    public boolean hasAvailable() {
-        return !(available == null);
-    }
+    private List<CommentResponse> comments;
 }

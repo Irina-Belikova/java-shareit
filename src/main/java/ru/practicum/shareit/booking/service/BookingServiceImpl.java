@@ -5,10 +5,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingRequest;
 import ru.practicum.shareit.booking.dto.BookingResponse;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingMapper bookingMapper;
 
     private static final Sort SORT_START = Sort.by(Sort.Direction.DESC, "start");
 
@@ -40,10 +40,10 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с таким id - %s не найден.", bookerId)));
         Item item = itemRepository.findById(bookingRequest.getItemId())
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с таким id - %s не найдена.", bookingRequest.getItemId())));
-        Booking booking = BookingMapper.mapToBooking(bookingRequest, item, booker);
+        Booking booking = bookingMapper.mapToBooking(bookingRequest, item, booker);
         booking.setStatus(BookingStatus.WAITING);
         booking = bookingRepository.save(booking);
-        return BookingMapper.mapToBookingResponse(booking);
+        return bookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
@@ -57,14 +57,14 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
-        return BookingMapper.mapToBookingResponse(booking);
+        return bookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
     public BookingResponse getBookingById(long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format("Бронирование с таким id - %s не найдено.", bookingId)));
-        return BookingMapper.mapToBookingResponse(booking);
+        return bookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED ->
                     bookings = bookingRepository.findByBookerIdAndStatus(bookerId, BookingStatus.REJECTED, SORT_START);
         }
-        return bookings.stream().map(BookingMapper::mapToBookingResponse).collect(Collectors.toList());
+        return bookingMapper.mapToBookingResponseList(bookings);
     }
 
     @Override
@@ -100,6 +100,6 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED ->
                     bookings = bookingRepository.getAllByOwnerIdAndStatus(ownerId, BookingStatus.REJECTED, SORT_START);
         }
-        return bookings.stream().map(BookingMapper::mapToBookingResponse).collect(Collectors.toList());
+        return bookingMapper.mapToBookingResponseList(bookings);
     }
 }

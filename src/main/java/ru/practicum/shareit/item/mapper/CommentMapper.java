@@ -1,32 +1,32 @@
 package ru.practicum.shareit.item.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.item.dto.CommentRequest;
 import ru.practicum.shareit.item.dto.CommentResponse;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommentMapper {
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface CommentMapper {
 
-    public static Comment mapToCommentForCreate(String text, Item item, User author) {
+    default Comment mapToCommentForCreate(CommentRequest commentRequest, Item item, User author) {
         return Comment.builder()
-                .text(text)
+                .text(commentRequest.getText())
                 .item(item)
                 .author(author)
                 .created(LocalDateTime.now())
                 .build();
     }
 
-    public static CommentResponse mapToCommentResponse(Comment comment) {
-        return CommentResponse.builder()
-                .id(comment.getId())
-                .text(comment.getText())
-                .authorName(comment.getAuthor().getName())
-                .created(comment.getCreated())
-                .build();
-    }
+    @Mapping(source = "author.name", target = "authorName")
+    CommentResponse mapToCommentResponse(Comment comment);
+
+    List<CommentResponse> mapToCommentResponseList(List<Comment> comments);
 }

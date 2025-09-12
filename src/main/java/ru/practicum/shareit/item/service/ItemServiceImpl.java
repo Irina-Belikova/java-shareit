@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,19 +34,21 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRequestRepository requestRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
     public ItemDto addItem(ItemDto itemDto, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с таким id - %s не найден.", userId)));
-        Item item = ItemMapper.mapToItem(itemDto, user);
+        Item item = itemMapper.mapToItem(itemDto, user);
 
         if (itemDto.getRequestId() != null) {
             addRequestToItem(itemDto.getRequestId(), item);
         }
         item = itemRepository.save(item);
-        return ItemMapper.mapToItemDto(item);
+        return itemMapper.mapToItemDto(item);
     }
 
     @Override
@@ -55,30 +56,19 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(long itemId, ItemDto itemDto) {
         Item updateItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с таким id - %s не найдена.", itemId)));
-
-        if (itemDto.hasName()) {
-            updateItem.setName(itemDto.getName());
-        }
-
-        if (itemDto.hasDescription()) {
-            updateItem.setDescription(itemDto.getDescription());
-        }
-
-        if (itemDto.hasAvailable()) {
-            updateItem.setAvailable(itemDto.getAvailable());
-        }
+        itemMapper.updateItemFromDto(itemDto, updateItem);
 
         if (itemDto.getRequestId() != null) {
             addRequestToItem(itemDto.getRequestId(), updateItem);
         }
-        return ItemMapper.mapToItemDto(updateItem);
+        return itemMapper.mapToItemDto(updateItem);
     }
 
     @Override
     public ItemDto getItemById(long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с таким id - %s не найдена.", itemId)));
-        ItemDto itemDto = ItemMapper.mapToItemDto(item);
+        ItemDto itemDto = itemMapper.mapToItemDto(item);
         itemDto.setLastBooking(bookingRepository.getLastBookingByItemId(itemId, LocalDateTime.now()));
         itemDto.setNextBooking(bookingRepository.getNextBookingByItemId(itemId, LocalDateTime.now()));
         addCommentsToItemDto(itemDto);
@@ -95,11 +85,11 @@ public class ItemServiceImpl implements ItemService {
 
         return userItems.stream()
                 .map(item -> {
-                    ItemDto dto = ItemMapper.mapToItemDto(item);
+                    ItemDto dto = itemMapper.mapToItemDto(item);
                     dto.setLastBooking(lastBookings.getOrDefault(dto.getId(), null));
                     dto.setNextBooking(nextBookings.getOrDefault(dto.getId(), null));
                     List<Comment> itemComments = comments.getOrDefault(item.getId(), new ArrayList<>());
-                    dto.setComments(itemComments.stream().map(CommentMapper::mapToCommentResponse).toList());
+                    dto.setComments(commentMapper.mapToCommentResponseList(itemComments));
                     return dto;
                 }).toList();
     }
@@ -107,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemsByText(String text) {
         List<Item> searchItems = itemRepository.findByText(text);
-        return searchItems.stream().map(ItemMapper::mapToItemDto).collect(Collectors.toList());
+        return itemMapper.mapToItemDtoList(searchItems);
     }
 
     @Override
@@ -117,9 +107,9 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с таким id - %s не найден.", authorId)));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с таким id - %s не найдена.", itemId)));
-        Comment comment = CommentMapper.mapToCommentForCreate(text.getText(), item, author);
+        Comment comment = commentMapper.mapToCommentForCreate(text, item, author);
         comment = commentRepository.save(comment);
-        return CommentMapper.mapToCommentResponse(comment);
+        return commentMapper.mapToCommentResponse(comment);
     }
 
     private void addRequestToItem(Long requestId, Item item) {
@@ -130,6 +120,6 @@ public class ItemServiceImpl implements ItemService {
 
     private void addCommentsToItemDto(ItemDto itemDto) {
         List<Comment> comments = commentRepository.findByItemId(itemDto.getId());
-        itemDto.setComments(comments.stream().map(CommentMapper::mapToCommentResponse).collect(Collectors.toList()));
+        itemDto.setComments(commentMapper.mapToCommentResponseList(comments));
     }
 }

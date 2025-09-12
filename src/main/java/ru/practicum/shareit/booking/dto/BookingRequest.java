@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -17,13 +16,6 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class BookingRequest {
-    /**
-     * Уникальный идентификатор бронирования.
-     * Генерируется программой.
-     * В десериализации JSON-запроса не участвует(JsonProperty.Access.READ_ONLY)
-     */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
 
     /**
      * Дата и время начала бронирования.

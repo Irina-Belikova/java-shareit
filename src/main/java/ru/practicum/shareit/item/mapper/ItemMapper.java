@@ -1,33 +1,35 @@
 package ru.practicum.shareit.item.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ItemMapper {
+import java.util.List;
 
-    public static Item mapToItem(ItemDto itemDto, User user) {
-        return Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .owner(user)
-                .build();
-    }
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface ItemMapper {
 
-    public static ItemDto mapToItemDto(Item item) {
-        ItemDto itemDto = ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
-        if (item.getRequest() != null) {
-            itemDto.setRequestId(item.getRequest().getId());
-        }
-        return itemDto;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "request", ignore = true)
+    @Mapping(source = "itemDto.name", target = "name")
+    Item mapToItem(ItemDto itemDto, User owner);
+
+    @Mapping(source = "request.id", target = "requestId",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    ItemDto mapToItemDto(Item item);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "request", ignore = true)
+    void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
+
+    List<ItemDto> mapToItemDtoList(List<Item> items);
 }

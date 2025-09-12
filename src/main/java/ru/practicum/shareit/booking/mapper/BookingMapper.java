@@ -1,36 +1,26 @@
 package ru.practicum.shareit.booking.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.booking.dto.BookingRequest;
 import ru.practicum.shareit.booking.dto.BookingResponse;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BookingMapper {
+import java.util.List;
 
-    public static Booking mapToBooking(BookingRequest bookingRequest, Item item, User booker) {
-        return Booking.builder()
-                .start(bookingRequest.getStart())
-                .end(bookingRequest.getEnd())
-                .item(item)
-                .booker(booker)
-                .status(bookingRequest.getStatus())
-                .build();
-    }
+@Mapper(componentModel = "spring", uses = {ItemMapper.class, UserMapper.class},
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface BookingMapper {
 
-    public static BookingResponse mapToBookingResponse(Booking booking) {
-        return BookingResponse.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .item(ItemMapper.mapToItemDto(booking.getItem()))
-                .booker(UserMapper.mapToUserDto(booking.getBooker()))
-                .status(booking.getStatus())
-                .build();
-    }
+    @Mapping(target = "id", ignore = true)
+    Booking mapToBooking(BookingRequest bookingRequest, Item item, User booker);
+
+    BookingResponse mapToBookingResponse(Booking booking);
+
+    List<BookingResponse> mapToBookingResponseList(List<Booking> bookings);
 }

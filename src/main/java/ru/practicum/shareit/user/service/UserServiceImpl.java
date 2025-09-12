@@ -15,13 +15,14 @@ import ru.practicum.shareit.user.repository.UserRepository;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
-        User user = UserMapper.mapToUser(userDto);
+        User user = userMapper.mapToUser(userDto);
         user = userRepository.save(user);
-        return UserMapper.mapToUserDto(user);
+        return userMapper.mapToUserDto(user);
     }
 
     @Override
@@ -29,22 +30,15 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(long id, UserDto userDto) {
         User updateUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с таким id - %s не найден.", id)));
-
-        if (userDto.hasName()) {
-            updateUser.setName(userDto.getName());
-        }
-
-        if (userDto.hasEmail()) {
-            updateUser.setEmail(userDto.getEmail());
-        }
-        return UserMapper.mapToUserDto(updateUser);
+        userMapper.updateUserFromDto(userDto, updateUser);
+        return userMapper.mapToUserDto(updateUser);
     }
 
     @Override
     public UserDto getUserById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с таким id - %s не найден.", id)));
-        return UserMapper.mapToUserDto(user);
+        return userMapper.mapToUserDto(user);
     }
 
     @Override

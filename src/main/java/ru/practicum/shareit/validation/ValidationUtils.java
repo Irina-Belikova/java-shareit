@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -25,6 +26,7 @@ public class ValidationUtils {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository requestRepository;
 
     public void validationForCreateUser(UserDto userDto) {
         String email = userDto.getEmail();
@@ -138,6 +140,12 @@ public class ValidationUtils {
         LocalDateTime time = LocalDateTime.now();
         if (!time.isAfter(booking.getEnd())) {
             throw new ValidationException("Комментарии можно оставлять только за прошедшие бронирования.");
+        }
+    }
+
+    public void checkRequestId(long id) {
+        if (!requestRepository.existsById(id)) {
+            throw new NotFoundException(String.format("Запроса с таким id - %s не существует.", id));
         }
     }
 }

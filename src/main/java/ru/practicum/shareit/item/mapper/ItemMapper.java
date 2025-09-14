@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -32,4 +33,7 @@ public interface ItemMapper {
     void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
 
     List<ItemDto> mapToItemDtoList(List<Item> items);
+
+    @Mapping(target = "ownerId", source = "owner.id")
+    RequestItemDto mapToRequestItemDto(Item item);
 }

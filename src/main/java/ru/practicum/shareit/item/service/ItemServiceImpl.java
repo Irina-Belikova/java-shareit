@@ -113,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void addRequestToItem(Long requestId, Item item) {
-        ItemRequest request = requestRepository.searchById(requestId)
+        ItemRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Запрос с таким id - %s не найден.", requestId)));
         item.setRequest(request);
     }
